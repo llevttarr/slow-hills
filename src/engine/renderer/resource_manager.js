@@ -1,3 +1,14 @@
+class CameraUnif{
+  constructor(){
+    
+  }
+}
+class GeneralUnif{
+  constructor(){
+
+  } 
+}
+
 export default class ResourceManager {
   constructor(device) {
     this.device = device;

@@ -2,8 +2,8 @@ import vs from "../shaders/vs.wgsl?raw";
 import fs from "../shaders/fs.wgsl?raw";
 import WebGPUPass from "./render_pass";
 
-export default class MainPass extends WebGPUPass{
-  createBuffers() {
+export default class ComputePass extends WebGPUPass{
+  createBuffers(resourceManager) {
     // TODO
   }
   createPipeline() {
@@ -11,7 +11,7 @@ export default class MainPass extends WebGPUPass{
       // TODO
     });
   }
-  encode(pass) {
+  encode(pass, bindGroups) {
     pass.setPipeline(this.pipeline);
     // pass.setVertexBuffer(0, this.vertexBuffer);
     pass.draw( /* n */ );
