@@ -1,4 +1,4 @@
-@compute @workgroup_size(16,16)
+@compute @workgroup_size(8,8)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let gidx = global_id.x;
     let gidy = global_id.y;
