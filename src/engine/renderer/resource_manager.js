@@ -147,13 +147,18 @@ export default class ResourceManager {
 
   /** frame change  */
 
-  writeFrameUniforms(camera, frameCount, scene) {
-    camera.write(
-      this._frameArr, frameCount,
-      scene.sunDir, scene.fogColor, scene.fogDensity,
-      scene.windDir, [this.w, this.h]
-    );
-    this.device.queue.writeBuffer(this.buffers.frameUniforms, 0, this._frameArr);
+  writeFrameUniforms(camera, frameCount, sunDir) {
+    const a = this.frameArr;
+    camera.write(a);
+    a[7] = frameCount;
+    a[16] = sunDir[0];
+    a[17] = sunDir[1];
+    a[18] = sunDir[2];
+    a[19] = 0;
+    a[20] = this.w;
+    a[21] = this.h;
+    
+    this.device.queue.writeBuffer(this.buffers.frameUniforms, 0, a);
   }
   
   /** binding logic */
@@ -250,9 +255,9 @@ export default class ResourceManager {
   writeWeatherUniforms(w) {
     const buf = new ArrayBuffer(WEATHER_UNIFORMS_SIZE);
     const dv = new DataView(buf);
-    dv.setFloat32( 0, w.windDir[0], true);
-    dv.setFloat32( 4, w.windDir[1], true);
-    dv.setFloat32( 8, w.windSpeed, true);
+    dv.setFloat32(0, w.windDir[0], true);
+    dv.setFloat32(4, w.windDir[1], true);
+    dv.setFloat32(8, w.windSpeed, true);
     dv.setFloat32(12, w.precipitation, true);
     dv.setFloat32(16, w.cloudCover, true);
     dv.setFloat32(20, w.temperature, true);
@@ -262,7 +267,7 @@ export default class ResourceManager {
     dv.setFloat32(36, w.fogColor[2], true);
     dv.setFloat32(40, 0, true);
     dv.setFloat32(44, w.uvIndex, true);
-    dv.setUint32 (48, w.weatherCode, true);
+    dv.setUint32(48, w.weatherCode, true);
     dv.setFloat32(52, w.snowfall, true);
     dv.setFloat32(56, 0, true);
     dv.setFloat32(60, 0, true);

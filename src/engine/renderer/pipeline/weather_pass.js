@@ -1,5 +1,4 @@
-import vs from "../shaders/vs.wgsl?raw";
-import fs from "../shaders/fs.wgsl?raw";
+import shader from "../shaders/weather.wgsl?raw";
 import WebGPUPass from "./render_pass";
 
 export default class WeatherPass extends RenderPass {
@@ -7,7 +6,7 @@ export default class WeatherPass extends RenderPass {
     const module = this.device.createShaderModule({ code: shader });
     this.buildPipeline(module, null, false, [resources.layouts.frame]);
   }
-buildPipeline(shaderModule, vertexLayout, depthWrite, layouts) {
+  buildPipeline(shaderModule, vertexLayout, depthWrite, layouts) {
     const pipelineLayout = this.device.createPipelineLayout({
       bindGroupLayouts: layouts,
     });

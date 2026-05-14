@@ -1,9 +1,11 @@
-
+import Camera from "./camera";
 import ComputePass from "./pipeline/compute_pass";
 import MainPass from "./pipeline/main_pass";
 import WeatherPass from "./pipeline/weather_pass";
 import BillboardPass from "./pipeline/billboard_pass";
 import ResourceManager from "./resource_manager";
+
+import { makeParams, DEFAULT_PARAMS } from "../../core/params";
 
 export default class Renderer {
   constructor({ device, context, format }) {
