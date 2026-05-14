@@ -2,18 +2,32 @@ import vs from "../shaders/vs.wgsl?raw";
 import fs from "../shaders/fs.wgsl?raw";
 import WebGPUPass from "./render_pass";
 
-export default class ComputePass extends WebGPUPass{
-  createBuffers(resourceManager) {
-    // TODO
+export default class ComputePass{
+   constructor(device) {
+    this.device = device;
+    this.pipeline = null;
   }
-  createPipeline() {
-    this.pipeline = this.device.createRenderPipeline({
-      // TODO
+
+  init(resources) {
+    const layout = this.device.createPipelineLayout({
+      bindGroupLayouts: [resources.layouts.frame, resources.layouts.computeWrite],
+    });
+
+    this.pipeline = this.device.createComputePipeline({
+      layout,
+      compute: {
+        module: this.device.createShaderModule({ code: computeShader }),
+        entryPoint: 'main',
+      },
     });
   }
-  encode(pass, bindGroups) {
+
+  encode(encoder, resources, workgroupCount) {
+    const pass = encoder.beginComputePass({ label: 'compute' });
     pass.setPipeline(this.pipeline);
-    // pass.setVertexBuffer(0, this.vertexBuffer);
-    pass.draw( /* n */ );
+    pass.setBindGroup(0, resources.bindGroups.frame);
+    pass.setBindGroup(1, resources.bindGroups.computeWrite);
+    pass.dispatchWorkgroups(workgroupCount);
+    pass.end();
   }
 }

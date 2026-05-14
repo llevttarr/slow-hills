@@ -1,11 +1,17 @@
 class CameraUnif{
   constructor(){
-    
+    this.pos = null;
+    this.fov = null;
+    this.aspect = null;
+    this.forward = null;
+    this.up = null;
+    this.right = null;
   }
 }
 class GeneralUnif{
   constructor(){
-
+    this.w=1000;
+    this.h=1000;
   } 
 }
 

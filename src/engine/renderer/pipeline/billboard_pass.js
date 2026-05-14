@@ -1,9 +1,8 @@
-import vs from "../shaders/vs.wgsl?raw";
-import fs from "../shaders/fs.wgsl?raw";
+import shader from "../shaders/billboard.wgsl?raw";
 import WebGPUPass from "./render_pass";
 
 export default class WeatherPass extends WebGPUPass{
-  createBuffers(resourceManager) {
+  createBuffers(resources) {
     // TODO
   }
   createPipeline() {

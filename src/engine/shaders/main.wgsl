@@ -14,3 +14,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
     out.color = in.color;
     return out;
 }
+@fragment
+fn fs_main(in: VertexOutput) -> @location(0) vec4f{
+    return in.color;
+}

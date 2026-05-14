@@ -2,18 +2,15 @@ import vs from "../shaders/vs.wgsl?raw";
 import fs from "../shaders/fs.wgsl?raw";
 import WebGPUPass from "./render_pass";
 
-export default class WeatherPass extends WebGPUPass{
-  createBuffers(resourceManager) {
-    // TODO
+export default class WeatherPass extends RenderPass {
+  init(resources) {
+    const module = this.device.createShaderModule({ code: shader });
+    this.buildPipeline(module, null, false, [resources.layouts.frame]);
   }
-  createPipeline() {
-    this.pipeline = this.device.createRenderPipeline({
-      // TODO
-    });
-  }
-  encode(pass, bindGroups) {
+
+  encode(pass, resources) {
     pass.setPipeline(this.pipeline);
-    // pass.setVertexBuffer(0, this.vertexBuffer);
-    pass.draw( /* n */ );
+    pass.setBindGroup(0, resources.bindGroups.frame);
+    pass.draw(3);
   }
 }
