@@ -13,22 +13,25 @@ export default class WebGPUPass {
 
     this.pipeline = this.device.createRenderPipeline({
       layout: pipelineLayout,
-      vertex: {
-        module: shaderModule,
-        entryPoint: 'vs_main',
-        buffers: vertexLayout ?? [],
-      },
       fragment: {
         module: shaderModule,
         entryPoint: 'fs_main',
-        targets: [{ format: this.format }],
+        targets: [{
+          format: this.format,
+          blend: {
+            color: {
+              srcFactor:  'src-alpha',
+              dstFactor:  'one-minus-src-alpha',
+              operation:  'add',
+            },
+            alpha: {
+              srcFactor:  'one',
+              dstFactor:  'one-minus-src-alpha',
+              operation:  'add',
+            },
+          },
+        }],
       },
-      depthStencil: {
-        format: 'depth24plus',
-        depthWriteEnabled: depthWrite,
-        depthCompare: depthWrite ? 'less' : 'less-equal',
-      },
-      primitive: { topology: 'triangle-list' },
     });
   }
 

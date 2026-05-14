@@ -18,7 +18,7 @@ export default class Renderer {
     this.h = height;
     this.resources = new ResourceManager(this.device);
     /** resource initialization */
-    this.resources.init(width, height);
+    this.resources.init(width, height,/**params */);
 
     this.mainPass = new MainPass(this.device,this.format);
     this.computePass = new ComputePass(this.device);
@@ -34,6 +34,12 @@ export default class Renderer {
   start() {
     this.running = true;
     this.frame();
+  }
+  startRegen(params) {
+    this.genOffset = 0;
+    this.isGenerating = true;
+    this.resources.regen(params);
+    this.resources.clearTerrain();
   }
   stop() {
     this.running = false;
@@ -51,8 +57,16 @@ export default class Renderer {
     const encoder = this.device.createCommandEncoder();
 
     if (this.computeDirty) {
-      this.computePass.encode(encoder, this.resources, Math.ceil(particleCount / 64));
-      this.computeDirty = false;
+      const { xSize, zSize, genChunkSize } = this.resources.params;
+      const total = xSize * zSize;
+
+      this.resources.writeGenState(this.genOffset, genChunkSize);
+
+      const workgroups = Math.ceil(genChunkSize / 64);
+      this.computePass.encode(encoder, this.resources, workgroups);
+
+      this.genOffset += genChunkSize;
+      if (this.genOffset >= total) this.isGenerating = false;
     }
     const colorView = this.context.getCurrentTexture().createView();
     const depthView = this.resources.textures.depth.createView();
