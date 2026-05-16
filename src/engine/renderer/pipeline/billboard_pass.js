@@ -9,13 +9,22 @@ const ALPHA_BLEND = {
 export default class BillboardPass extends WebGPUPass {
   init(resources) {
     const module = this.device.createShaderModule({ code: shader });
-    this.buildPipeline(module, null,false, [resources.layouts.group0, resources.layouts.group1Read], ALPHA_BLEND,);
+    this.buildPipeline(
+      module, null, false,
+      [
+        resources.layouts.group0,
+        resources.layouts.group1Read,
+        resources.layouts.group2Billboard,
+      ],
+      ALPHA_BLEND,
+    );
   }
 
   encode(pass, resources) {
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, resources.bindGroups.group0);
     pass.setBindGroup(1, resources.bindGroups.group1Read);
+    pass.setBindGroup(2, resources.bindGroups.group2Billboard);
 
     //fixme
     pass.draw(6, 1000);

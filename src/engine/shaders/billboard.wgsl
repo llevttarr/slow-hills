@@ -37,37 +37,40 @@ struct Billboard {
 };
 @group(1) @binding(1) var<storage, read> billboards : array<Billboard>;
 
-struct BBOut {
-  @builtin(position) clip_pos  : vec4<f32>,
-  @location(0) color : vec3<f32>,
-  @location(1) uv : vec2<f32>,
-  @location(2) world_pos : vec3<f32>,
+struct AtlasEntry {
+  u_min: f32, v_min: f32, u_max: f32, v_max: f32,
 };
 
+@group(2) @binding(0) var atlas_tex : texture_2d<f32>;
+@group(2) @binding(1) var atlas_samp : sampler;
+@group(2) @binding(2) var<storage, read> atlas_entries: array<AtlasEntry>;
+struct BBOut {
+  @builtin(position) clip_pos : vec4<f32>,
+  @location(0) uv : vec2<f32>,
+  @location(1) world_pos : vec3<f32>,
+  @location(2) b_type : u32,
+};
 fn bb_corner(vi: u32) -> vec2<f32> {
   let xs = array<f32,6>(-0.5,  0.5, -0.5, -0.5,  0.5,  0.5);
   let ys = array<f32,6>( 0.0,  0.0,  1.0,  1.0,  0.0,  1.0);
   return vec2<f32>(xs[vi], ys[vi]);
 }
-fn bb_uv(vi: u32) -> vec2<f32> {
+fn bb_uv_local(vi: u32) -> vec2<f32> {
   let us = array<f32,6>(0.0, 1.0, 0.0, 0.0, 1.0, 1.0);
   let vs = array<f32,6>(1.0, 1.0, 0.0, 0.0, 1.0, 0.0);
   return vec2<f32>(us[vi], vs[vi]);
 }
-fn bb_color(t: u32) -> vec3<f32> {
-  // TODO
-  switch t {
-    case 0u: { return vec3<f32>(0.10, 0.55, 0.10); }
-    case 1u: { return vec3<f32>(0.50, 0.45, 0.35); }
-    case 2u: { return vec3<f32>(0.20, 0.65, 0.15); }
-    default: { return vec3<f32>(0.80, 0.75, 0.20); }
-  }
-}
-
 @vertex
 fn vs_main(@builtin(vertex_index) vi : u32,@builtin(instance_index) ii : u32,) -> BBOut {
   let bb = billboards[ii];
   let corner = bb_corner(vi);
+  let local_uv = bb_uv_local(vi);
+
+  let e = atlas_entries[bb.b_type];
+  let atlas_uv = vec2<f32>(
+    mix(e.u_min, e.u_max, local_uv.x),
+    mix(e.v_min, e.v_max, local_uv.y),
+  );
 
   let wpos = bb.pos+ frame.cam_right * (corner.x * bb.scale)+ vec3<f32>(0.0, 1.0, 0.0) * (corner.y * bb.scale);
 
@@ -75,20 +78,22 @@ fn vs_main(@builtin(vertex_index) vi : u32,@builtin(instance_index) ii : u32,) -
   let proj = make_proj(frame.fov, frame.resolution.x / frame.resolution.y, 0.1, 1000.0);
 
   var out: BBOut;
-  out.clip_pos = proj * view * vec4<f32>(wpos, 1.0);
-  out.color = bb_color(bb.b_type);
-  out.uv = bb_uv(vi);
+  out.clip_pos  = proj * view * vec4<f32>(wpos, 1.0);
+  out.uv = atlas_uv;
   out.world_pos = wpos;
+  out.b_type = bb.b_type;
   return out;
 }
 
 @fragment
 fn fs_main(in: BBOut) -> @location(0) vec4<f32> {
-  let edge = min(in.uv.x, 1.0 - in.uv.x) * 2.0;
-  if edge < 0.05 { discard; }
+  let c = textureSample(atlas_tex, atlas_samp, in.uv);
+  if c.a < 0.15 { discard; }
 
   let fog_color = vec3<f32>(weather.fog_r, weather.fog_g, weather.fog_b);
   let dist = length(in.world_pos - frame.cam_pos);
   let fog_f = 1.0 - exp(-weather.fog_density * dist);
-  return vec4<f32>(mix(in.color, fog_color, fog_f), 1.0);
+  let lit = mix(c.rgb, fog_color, fog_f);
+
+  return vec4<f32>(lit, c.a);
 }

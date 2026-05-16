@@ -5,8 +5,14 @@ import WeatherPass from "./pipeline/weather_pass";
 import BillboardPass from "./pipeline/billboard_pass";
 import ResourceManager from "./resource_manager";
 
+import TextureManager from "./texture_manager";
+
 import { makeParams, DEFAULT_PARAMS } from "../../core/params";
 import { vec3 } from "gl-matrix";
+
+const BILLBOARD_IMAGES = [
+  { src: '/textures/test.png', label: 'test'} // PLACEHOLDER
+];
 
 export default class Renderer {
   constructor({ device, context, format }) {
@@ -30,6 +36,10 @@ export default class Renderer {
     this.computePass = new ComputePass(this.device);
     this.billboardPass = new BillboardPass(this.device,this.format);
     this.weatherPass = new WeatherPass(this.device,this.format);
+  
+    this.texManager = new TextureManager(this.device);
+    await this.texManager.init(BILLBOARD_IMAGES);
+    this.resources.createBillboardBindGroup(this.texManager);
 
     this.computePass.init(this.resources);
     this.mainPass.init(this.resources);
