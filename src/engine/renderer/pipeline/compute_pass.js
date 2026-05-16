@@ -10,7 +10,7 @@ export default class ComputePass{
 
   init(resources) {
     const layout = this.device.createPipelineLayout({
-      bindGroupLayouts: [resources.layouts.frame, resources.layouts.computeWrite],
+      bindGroupLayouts: [resources.layouts.group0, resources.layouts.group1Write],
     });
 
     this.pipeline = this.device.createComputePipeline({
@@ -25,8 +25,8 @@ export default class ComputePass{
   encode(encoder, resources, workgroupCount) {
     const pass = encoder.beginComputePass({ label: 'compute' });
     pass.setPipeline(this.pipeline);
-    pass.setBindGroup(0, resources.bindGroups.frame);
-    pass.setBindGroup(1, resources.bindGroups.computeWrite);
+    pass.setBindGroup(0, resources.bindGroups.group0);
+    pass.setBindGroup(1, resources.bindGroups.group1Write);
     pass.dispatchWorkgroups(workgroupCount);
     pass.end();
   }

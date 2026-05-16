@@ -1,39 +1,20 @@
-import shader from "../shaders/weather.wgsl?raw";
+import shader from "../shaders/billboard.wgsl?raw";
 import WebGPUPass from "./render_pass";
 
-export default class WeatherPass extends RenderPass {
+const ALPHA_BLEND = {
+  color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+  alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+};
+
+export default class WeatherPass extends WebGPUPass {
   init(resources) {
     const module = this.device.createShaderModule({ code: shader });
-    this.buildPipeline(module, null, false, [resources.layouts.frame]);
+    this.buildPipeline(module,null, null, [resources.layouts.group0],ALPHA_BLEND,);
   }
-  buildPipeline(shaderModule, vertexLayout, depthWrite, layouts) {
-    const pipelineLayout = this.device.createPipelineLayout({
-      bindGroupLayouts: layouts,
-    });
 
-    this.pipeline = this.device.createRenderPipeline({
-      layout: pipelineLayout,
-      vertex: {
-        module: shaderModule,
-        entryPoint: 'vs_main',
-        buffers: vertexLayout ?? [],
-      },
-      fragment: {
-        module: shaderModule,
-        entryPoint: 'fs_main',
-        targets: [{ format: this.format }],
-      },
-      depthStencil: {
-        format: 'depth24plus',
-        depthWriteEnabled: depthWrite,
-        depthCompare: depthWrite ? 'less' : 'less-equal',
-      },
-      primitive: { topology: 'triangle-list' },
-    });
-  }
   encode(pass, resources) {
     pass.setPipeline(this.pipeline);
-    pass.setBindGroup(0, resources.bindGroups.frame);
+    pass.setBindGroup(0, resources.bindGroups.group0);
     pass.draw(3);
   }
 }

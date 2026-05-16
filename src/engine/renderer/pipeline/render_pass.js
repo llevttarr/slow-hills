@@ -6,32 +6,30 @@ export default class WebGPUPass {
     this.format = format;
     this.pipeline = null;
   }
-  buildPipeline(shaderModule, vertexLayout, depthWrite, layouts) {
+  buildPipeline(shaderModule, vertexLayout, depthWrite, layouts, blend = null) {
     const pipelineLayout = this.device.createPipelineLayout({
       bindGroupLayouts: layouts,
     });
+    const depthStencil = depthWrite !== null ? {
+      format: 'depth24plus',
+      depthWriteEnabled: depthWrite,
+      depthCompare: depthWrite ? 'less' : 'less-equal',
+    } : undefined;
 
     this.pipeline = this.device.createRenderPipeline({
       layout: pipelineLayout,
+      vertex: {
+        module: shaderModule,
+        entryPoint: 'vs_main',
+        buffers: vertexBufferLayouts ?? [],
+      },
       fragment: {
         module: shaderModule,
         entryPoint: 'fs_main',
-        targets: [{
-          format: this.format,
-          blend: {
-            color: {
-              srcFactor:  'src-alpha',
-              dstFactor:  'one-minus-src-alpha',
-              operation:  'add',
-            },
-            alpha: {
-              srcFactor:  'one',
-              dstFactor:  'one-minus-src-alpha',
-              operation:  'add',
-            },
-          },
-        }],
+        targets: [{ format: this.format, blend: blend ?? undefined }],
       },
+      depthStencil,
+      primitive: { topology: 'triangle-list', cullMode: 'back' },
     });
   }
 

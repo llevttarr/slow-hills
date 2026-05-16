@@ -6,6 +6,7 @@ import BillboardPass from "./pipeline/billboard_pass";
 import ResourceManager from "./resource_manager";
 
 import { makeParams, DEFAULT_PARAMS } from "../../core/params";
+import { vec3 } from "gl-matrix";
 
 export default class Renderer {
   constructor({ device, context, format }) {
@@ -14,13 +15,16 @@ export default class Renderer {
     this.format = format;
     this.running = false;
     this.dirty = false;
+    this.frameCount = 0;
+    this.genOffset = 0;
+    this.sunDir = vec3.normalize(vec3.create(), vec3.fromValues(0.4, 1.0, 0.3));
   }
-  async init(width,height){ 
+  async init(width,height,params=DEFAULT_PARAMS){ 
     this.w = width;
     this.h = height;
     this.resources = new ResourceManager(this.device);
     /** resource initialization */
-    this.resources.init(width, height,/**params */);
+    this.resources.init(width, height, params);
 
     this.mainPass = new MainPass(this.device,this.format);
     this.computePass = new ComputePass(this.device);
@@ -41,7 +45,6 @@ export default class Renderer {
     this.genOffset = 0;
     this.isGenerating = true;
     this.resources.regen(params);
-    this.resources.clearTerrain();
   }
   stop() {
     this.running = false;
@@ -49,12 +52,17 @@ export default class Renderer {
   resize(w, h){
     this.w = w;
     this.h = h;
+    this.resources.resize(w, h); 
   }
   frame = () => {
     if (!this.running)
         return;
 
-    this.resources.writeUniforms(this.camera, this.general);
+    this.resources.writeFrameUniforms(
+      this.camera,
+      this.frameCount,
+      this.sunDir,
+    );
   
     const encoder = this.device.createCommandEncoder();
 
@@ -72,10 +80,10 @@ export default class Renderer {
     }
     const colorView = this.context.getCurrentTexture().createView();
     const depthView = this.resources.textures.depth.createView();
-    const renderPassDesc = {
+    const opaquePass = encoder.beginRenderPass({
       colorAttachments: [{
         view: colorView,
-        clearValue: { r: 0, g: 0, b: 0, a: 1 },
+        clearValue: { r: 0.5, g: 0.7, b: 0.9, a: 1 },
         loadOp: 'clear',
         storeOp: 'store',
       }],
@@ -85,23 +93,23 @@ export default class Renderer {
         depthLoadOp: 'clear',
         depthStoreOp: 'discard',
       },
-    };
-    const pass = encoder.beginRenderPass(renderPassDesc);
-    this.mainPass.encode(pass, this.resources);
-    this.billboardPass.encode(pass, this.resources);
-    pass.end();
+    });
+    this.mainPass.encode(opaquePass, this.resources);
+    this.billboardPass.encode(opaquePass, this.resources);
+    opaquePass.end();
 
-    const weatherPass = encoder.beginRenderPass({
+    const weatherRenderPass = encoder.beginRenderPass({
       colorAttachments: [{
         view: colorView,
         loadOp: 'load',
         storeOp: 'store',
       }],
     });
-    this.weatherPass.encode(weatherPass, this.resources);
-    weatherPass.end();
+    this.weatherPass.encode(weatherRenderPass, this.resources);
+    weatherRenderPass.end();
 
     this.device.queue.submit([encoder.finish()]);
+    this.frameCount++;
     requestAnimationFrame(this.frame);
   };
 }
