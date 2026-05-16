@@ -9,9 +9,15 @@
 }
 
 @theme {
+  --color-bblack: rgba(10, 10, 10, 0.3);
   --color-lgray: #EEEEEE;
   --color-mgray: #D9D9D9;
   --image-placeholder: url("/placeholder.png");
+  --gradient-fade: linear-gradient(
+    180deg,
+    rgba(85, 85, 85, 0) 20%,
+    rgba(48, 47, 47, 0.45) 80%
+  );
 }
 
 :root {
@@ -22,3 +28,31 @@ html {
   font-family: var(--font-kranky);
 }
 
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 12px;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: black;
+  border: none;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: black;
+  border: none;
+  cursor: pointer;
+}
