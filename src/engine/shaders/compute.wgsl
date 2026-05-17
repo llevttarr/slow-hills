@@ -39,6 +39,8 @@ struct Billboard {
 @group(1) @binding(0) var<storage, read_write> terrain : array<TerrainCell>;
 @group(1) @binding(1) var<storage, read_write> billboards : array<Billboard>;
 @group(1) @binding(2) var<storage, read_write> bb_count : atomic<u32>;
+@group(1) @binding(3) var<storage, read> perm : array<u32>;
+@group(1) @binding(4) var<storage, read> grads : array<f32>;
 
 
 @compute @workgroup_size(64)

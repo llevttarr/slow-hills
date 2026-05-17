@@ -1,3 +1,5 @@
+import { buildGradTable, buildPermTable } from "../../core/noise";
+
 const FRAME_UNIFORMS_SIZE = 28*4;
 const WORLD_UNIFORMS_SIZE = 12*4;
 
@@ -28,7 +30,7 @@ export default class ResourceManager {
     this.w = width;
     this.h = height;
     this.params = params;
-    const { xSize, zSize, numRegions } = params;
+    const { xSize, zSize, numRegions, seed } = params;
     const cellCount = xSize * zSize;
   
     this.buffers.frameUniforms = D.createBuffer({
@@ -81,6 +83,9 @@ export default class ResourceManager {
 
     this.createLayouts();
     this.createBindGroups();
+
+    this.permTable = buildPermTable(seed)
+    this.gradTable = buildGradTable()
   }
 
   /** uploads (const) */
@@ -221,6 +226,8 @@ export default class ResourceManager {
         { binding: 0, visibility: C, buffer: { type: 'storage' } }, // terrainBuffer
         { binding: 1, visibility: C, buffer: { type: 'storage' } }, // billboardBuffer
         { binding: 2, visibility: C, buffer: { type: 'storage' } }, // billboardCount
+        { binding: 3, visibility: C, buffer: { type: 'read-only-storage' } }, // permTable
+        { binding: 4, visibility: C, buffer: { type: 'read-only-storage' } }, // grads
       ],
     });
 

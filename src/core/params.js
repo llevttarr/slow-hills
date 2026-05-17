@@ -2,7 +2,7 @@ export const DEFAULT_PARAMS = {
   xSize: 512,
   zSize: 512,
   cellSize: 1.0,
-  seed: 0xDEADBEEF,
+  seed: 0x67676767,
   numRegions: 1,
   heightIntensity: 20.0,
   objectIntensity: 0.0,
