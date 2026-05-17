@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, createContext } from 'react'
 
 import Input from '../components/input'
 import Button from '../components/button'
@@ -7,28 +7,33 @@ import Key from '../components/key'
 
 import { weatherCodes } from '../data/WeatherCodes'
 import Visualization from './vis/Visualization'
+import { rerun } from '../engine/renderer/renderer_instance'
+import GenerationForm from '../components/generation/generationForm'
+import GenerationProvider from '../components/generation/generationContext'
 
-function App() {
-  const [worldTab, setWorldTab] = useState(false)
-  const [weathTab, setWeathTab] = useState(false)
-  const [contrTab, setContrTab] = useState(false)
+export default function App() {
+  const [worldTab, setWorldTab] = useState(false);
+  const [weathTab, setWeathTab] = useState(false);
+  const [contrTab, setContrTab] = useState(false);
 
 
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") {
-        setWorldTab(false)
-        setWeathTab(false)
-        setContrTab(false)
+        setWorldTab(false);
+        setWeathTab(false);
+        setContrTab(false);
       }
-    }
+    };
 
-    window.addEventListener("keydown", handleEscape)
+    window.addEventListener("keydown", handleEscape);
 
-    return () => { window.removeEventListener("keydown", handleEscape) }
-  }, [])
+    return () => { window.removeEventListener("keydown", handleEscape); }
+  }, []);
 
   function WorldTab() {
+
+
     return (
       <div className='bg-bblack w-full h-full absolute z-999 flex justify-center'>
         <div className='rounded-[20px] border-2 bg-mgray w-180 h-194  p-6 mt-10'>
@@ -36,40 +41,21 @@ function App() {
             <span className='text-5xl mr-auto'>Generate New World</span>
             <div className='select-none cursor-pointer text-4xl' onClick={() => { setWorldTab(false) }}>X</div>
           </nav>
-
-          <div className='flex flex-col items-center gap-8'>
-            <div className='flex gap-8 max-w-3xl'>
-              <Input title='World Width' pholder='Enter width...' width='130' />
-              <Input title='World Length' pholder='Enter length...' width='130' />
-            </div>
-
-            <div className='grid grid-cols-2 gap-8'>
-              <Slider title='Cell Size' />
-              <Slider title='Region Quantity' />
-              <Slider title='Chunk Size' />
-              <Slider title='Height Intensity' />
-              <Slider title='Object Internsity' />
-              <Slider title='Aging Rate' />
-            </div>
-
-            <nav className='w-[50%] flex flex-col gap-8'>
-              <Input pholder="Enter seed..." name="seed" title='World Seed' />
-              <Button text="Generate" />
-            </nav>
-          </div>
+          <GenerationProvider>
+            <GenerationForm/>
+          </GenerationProvider>
         </div>
       </div>
     )
   }
 
   function WeatherTab() {
+    // separate func
     const [query, setQuery] = useState("")
     const [city, setCity] = useState("--")
     const [temperature, setTemperature] = useState("--")
     const [weather, setWeather] = useState("--")
     const [invalid, setInvalid] = useState(false)
-
-    // move to separate file
 
     function clearWeather() {
       setQuery("")
@@ -246,5 +232,3 @@ function App() {
     </main>
   )
 }
-
-export default App

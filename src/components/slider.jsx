@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 
 export default function Slider({
   title = "Placeholder",
+  name = "pholder",
   min = 0,
   max = 100,
   step = 1,
   value = 67,
   onChange,
 }) {
-  const clampValue = (val) => {
+  function clampValue(val) {
     const num = Number(val)
 
     if (isNaN(num)) return min
@@ -34,7 +35,7 @@ export default function Slider({
     }
   }
 
-  const handleInputChange = (e) => {
+  function handleInputChange(e) {
     const rawValue = e.target.value
 
     if (rawValue === "") {
@@ -51,7 +52,7 @@ export default function Slider({
     }
   }
 
-  const handleBlur = () => {
+  function handleBlur(){
     const fixedValue = clampValue(currentValue)
 
     setCurrentValue(fixedValue)
@@ -72,6 +73,7 @@ export default function Slider({
       <div className="flex items-center gap-7">
         <div className="flex-1">
           <input
+            name={name}
             type="range"
             min={min}
             max={max}
@@ -92,6 +94,7 @@ export default function Slider({
         </div>
 
         <input
+          name={name}
           type="number"
           value={currentValue}
           onChange={handleInputChange}
@@ -99,7 +102,7 @@ export default function Slider({
           min={min}
           max={max}
           step={step}
-          className="w-20 bg-transparent text-3xl text-center"
+          className="w-25 bg-transparent text-3xl text-center"
         />
       </div>
 
