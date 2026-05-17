@@ -49,7 +49,7 @@ export default function Visualization() {
   return (
     <canvas
       ref={canvasRef}
-      style={{ width: '100%', height: '100%', display: 'block' }}
+      className="h-screen w-screen"
     />
   );
 }
