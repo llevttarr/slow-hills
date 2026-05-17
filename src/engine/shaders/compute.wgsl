@@ -47,7 +47,22 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   if li >= world.gen_chunk_size { return; }
   let idx = world.gen_offset + li;
   if idx >= world.x_size * world.z_size { return; }
-  // TODO
 
-  // terrain[idx] = TerrainCell(h, rid, bb_id, u32(frame.time) + 1u);
+  let col = idx % world.x_size;
+  let row = idx / world.x_size;
+
+  let fx = f32(col) / f32(world.x_size);
+  let fz = f32(row) / f32(world.z_size);
+
+  let h = (sin(fx * 18.85) * 0.5 + 0.5)* (cos(fz * 12.57) * 0.5 + 0.5)* world.height_intensity;
+
+  var rid = 0u;
+  for (var r = 0u; r < world.num_regions; r++) {
+    if h >= region_defs[r].height_min && h < region_defs[r].height_max {
+      rid = r;
+      break;
+    }
+  }
+
+  terrain[idx] = TerrainCell(h, rid, -1i, u32(frame.time) + 1u);
 }

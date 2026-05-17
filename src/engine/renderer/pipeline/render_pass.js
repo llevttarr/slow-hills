@@ -29,7 +29,7 @@ export default class WebGPUPass {
         targets: [{ format: this.format, blend: blend ?? undefined }],
       },
       depthStencil,
-      primitive: { topology: 'triangle-list', cullMode: 'back' },
+      primitive: { topology: 'triangle-list', cullMode: 'none' },
     });
   }
 

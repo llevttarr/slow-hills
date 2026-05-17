@@ -118,28 +118,63 @@ export default class ResourceManager {
     this.device.queue.writeBuffer(this.buffers.regionDefBuffer, 0, buf);
   }
   buildIndexBuffer(xSize, zSize) {
-    const count = (xSize - 1) * (zSize - 1) * 6;
+    const BOTTOM = 0x80000000;
+    const surfaceQuads = (xSize - 1) * (zSize - 1);
+    const bottomQuads = 2 * (xSize - 1) + 2 * (zSize - 1);
+    const count = (surfaceQuads + bottomQuads) * 6;
     const indices = new Uint32Array(count);
     let n = 0;
+
+    /** Main surface */
     for (let z = 0; z < zSize - 1; z++) {
       for (let x = 0; x < xSize - 1; x++) {
         const tl = z * xSize + x;
         const tr = tl + 1;
         const bl = tl + xSize;
         const br = bl + 1;
-        indices[n++] = tl;
-        indices[n++] = bl;
-        indices[n++] = tr;
-
-        indices[n++] = tr;
-        indices[n++] = bl;
-        indices[n++] = br;
+        indices[n++] = tl; indices[n++] = bl; indices[n++] = tr;
+        indices[n++] = tr; indices[n++] = bl; indices[n++] = br;
       }
     }
+
+    /** Bottom: S */
+    for (let x = 0; x < xSize - 1; x++) {
+      const tl = x, tr = x + 1;
+      const bl = x |BOTTOM, br = (x + 1) | BOTTOM;
+      indices[n++] = tl; indices[n++] = bl; indices[n++] = br;
+      indices[n++] = tl; indices[n++] = br; indices[n++] = tr;
+    }
+
+    /** Bottom: N */
+    for (let x = 0; x < xSize - 1; x++) {
+      const base = (zSize - 1) * xSize;
+      const tl = base + x + 1, tr = base + x;
+      const bl = (base + x + 1) | BOTTOM, br = (base + x) | BOTTOM;
+      indices[n++] = tl; indices[n++] = bl; indices[n++] = br;
+      indices[n++] = tl; indices[n++] = br; indices[n++] = tr;
+    }
+
+    /** Bottom: W */
+    for (let z = 0; z < zSize - 1; z++) {
+      const tl = (z + 1) * xSize, tr = z * xSize;
+      const bl = tl | BOTTOM, br = tr | BOTTOM;
+      indices[n++] = tl; indices[n++] = bl; indices[n++] = br;
+      indices[n++] = tl; indices[n++] = br; indices[n++] = tr;
+    }
+
+    /** Bottom: E */
+    for (let z = 0; z < zSize - 1; z++) {
+      const tl = z * xSize + (xSize - 1);
+      const tr = (z + 1) * xSize + (xSize - 1);
+      const bl = tl | BOTTOM, br = tr | BOTTOM;
+      indices[n++] = tl; indices[n++] = bl; indices[n++] = br;
+      indices[n++] = tl; indices[n++] = br; indices[n++] = tr;
+    }
+
     const gpuBuf = this.device.createBuffer({
       label: 'terrainIndex',
       size: indices.byteLength,
-      usage: GPUBufferUsage.INDEX|GPUBufferUsage.COPY_DST,
+      usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
     });
     this.device.queue.writeBuffer(gpuBuf, 0, indices);
     return gpuBuf;

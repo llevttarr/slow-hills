@@ -80,13 +80,19 @@ export default class Renderer {
       const { xSize, zSize, genChunkSize } = this.resources.params;
       const total = xSize * zSize;
 
-      this.resources.writeGenState(this.genOffset, genChunkSize);
-
-      const workgroups = Math.ceil(genChunkSize / 64);
-      this.computePass.encode(encoder, this.resources, workgroups);
-
-      this.genOffset += genChunkSize;
-      if (this.genOffset >= total) this.isGenerating = false;
+      const framesToAge = Math.ceil(1.0 / agingRate);
+      const framesSinceLast = this.frameCount - (this.lastChunkFrame ?? -framesToAge);
+  
+      if (framesSinceLast >= framesToAge) {
+        this.resources.writeGenState(this.genOffset, genChunkSize);
+        this.computePass.encode(
+          encoder, this.resources,
+          Math.ceil(genChunkSize / 64),
+        );
+        this.lastChunkFrame = this.frameCount;
+        this.genOffset += genChunkSize;
+        if (this.genOffset >= total) this.isGenerating = false;
+      }
     }
     const colorView = this.context.getCurrentTexture().createView();
     const depthView = this.resources.textures.depth.createView();
@@ -105,9 +111,9 @@ export default class Renderer {
       },
     });
     this.mainPass.encode(opaquePass, this.resources);
-    this.billboardPass.encode(opaquePass, this.resources);
+    // this.billboardPass.encode(opaquePass, this.resources);
     opaquePass.end();
-
+    /*
     const weatherRenderPass = encoder.beginRenderPass({
       colorAttachments: [{
         view: colorView,
@@ -116,7 +122,7 @@ export default class Renderer {
       }],
     });
     this.weatherPass.encode(weatherRenderPass, this.resources);
-    weatherRenderPass.end();
+    weatherRenderPass.end();*/
 
     this.device.queue.submit([encoder.finish()]);
     this.frameCount++;
