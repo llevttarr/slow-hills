@@ -1,7 +1,7 @@
 import { React, useEffect, useState } from "react";
 
 export default function Loading() {
-  const [dot, setDot] = useState("")
+  const [dot, setDot] = useState("");
   useEffect(() => {
     const interval = setInterval(() => {
       setDot(d => (d.length >= 3 ? "" : d + "."));

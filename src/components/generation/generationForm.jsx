@@ -5,10 +5,12 @@ import Input from "../input";
 import Slider from "../slider";
 import Button from "../button";
 import { rerun } from "../../engine/renderer/renderer_instance";
+import { WorldContext } from "../../pages/App";
 
 export default function GenerationForm() {
 
   const { genParams, setParams } = useContext(GenerationContext);
+  const { worldTab, setWorldTab } = useContext(WorldContext);
 
   function handleChange(e) {
     console.log(genParams);
@@ -22,14 +24,15 @@ export default function GenerationForm() {
   };
 
   function handleGeneration() {
+    setWorldTab(false);
     rerun(genParams);
   }
 
   return (
     <form className='flex flex-col items-center gap-8' onChange={handleChange}>
-      <div className='flex gap-8 max-w-3xl'>
-        <Input name="xSize" title='World Width' pholder='Enter width...' width='60' />
-        <Input name="zSize" title='World Length' pholder='Enter length...' width='60' />
+      <div className='flex gap-8 w-full'>
+        <Input name="xSize" title='World Width' pholder='Enter width...' />
+        <Input name="zSize" title='World Length' pholder='Enter length...' />
       </div>
 
       <div className='grid grid-cols-2 gap-8'>
