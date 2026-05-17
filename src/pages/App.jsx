@@ -6,6 +6,7 @@ import Slider from '../components/slider'
 import Key from '../components/key'
 
 import { weatherCodes } from '../data/WeatherCodes'
+import Visualization from './vis/Visualization'
 
 function App() {
   const [worldTab, setWorldTab] = useState(false)
@@ -239,6 +240,9 @@ function App() {
           <div className="cursor-pointer hover:font-bold" onClick={() => { setContrTab(true) }}>Controls</div>
         </div>
       </nav>
+
+      <Visualization/>
+
     </main>
   )
 }
