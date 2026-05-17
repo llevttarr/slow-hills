@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import { useWebGPU } from "../../hooks/useWebGPU";
 import Renderer from "../../engine/renderer/renderer";
+import { setRenderer } from "../../engine/renderer/renderer_instance";
 
 export default function Visualization() {
   const canvasRef = useRef(null);
@@ -19,6 +20,7 @@ export default function Visualization() {
 
     renderer.init(canvas.width, canvas.height)
       .then(() => {
+        setRenderer(renderer);
         renderer.camera.bind(canvas);
         renderer.startRegen(renderer.resources.params);
         renderer.start();
@@ -31,6 +33,7 @@ export default function Visualization() {
     return () => {
       renderer.stop();
       rendererRef.current = null;
+      setRenderer(null);
     };
   }, [gpu]);
   useEffect(() => {
