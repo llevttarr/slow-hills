@@ -78,6 +78,11 @@ fn hash21(x: u32, z: u32) -> f32 {
     h = (h ^ (h >> 15u)) * 2246822519u;
     return f32(h & 0xFFFFFFu) / 16777216.0;
 }
+fn fhash(a: u32, b: u32) -> f32 {
+  var x = a ^ (b * 1234567u) ^ world.seed;
+  x ^= x >> 17u; x *= 0xbf324c81u; x ^= x >> 11u;
+  return f32(x) / 4294967295.0;
+}
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   let li = gid.x;
@@ -113,6 +118,21 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
       break;
     }
   }
+  var bb_id = -1i;
+  let rng = fhash(col + 7919u, row + 6271u);
+  if rng < region_defs[rid].billboard_chance * world.object_intensity {
+    let slot = atomicAdd(&bb_count, 1u);
+    if slot < 1000u {
+      billboards[slot] = Billboard(
+        vec3<f32>(f32(col) * world.cell_size, h, f32(row) * world.cell_size),
+        region_defs[rid].billboard_type,
+        0.8 + rng * 0.4,
+        rng * 6.2832,
+        vec2<f32>(0.0),
+      );
+      bb_id = i32(slot);
+    }
+  }
 
-  terrain[idx] = TerrainCell(h, rid, -1i, u32(frame.time) + 1u);
+  terrain[idx] = TerrainCell(h, rid, bb_id, u32(frame.time) + 1u);
 }

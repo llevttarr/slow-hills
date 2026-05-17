@@ -43,7 +43,7 @@ export default class TextureManager {
       size: [atlasW, atlasH],
       format: 'rgba8unorm',
       usage: GPUTextureUsage.TEXTURE_BINDING| GPUTextureUsage.COPY_DST|GPUTextureUsage.RENDER_ATTACHMENT,
-      mipLevelCount: Math.floor(Math.log2(Math.max(atlasW, atlasH))) + 1,
+      mipLevelCount: /*Math.floor(Math.log2(Math.max(atlasW, atlasH))) + 1*/1,
     });
     this.device.queue.copyExternalImageToTexture(
       { source: imageBitmap },
@@ -55,7 +55,7 @@ export default class TextureManager {
     this.sampler = this.device.createSampler({
       magFilter: 'linear',
       minFilter: 'linear',
-      mipmapFilter: 'linear',
+      mipmapFilter: 'nearest',
       addressModeU: 'clamp-to-edge',
       addressModeV: 'clamp-to-edge',
     });

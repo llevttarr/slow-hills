@@ -11,7 +11,7 @@ import { makeParams, DEFAULT_PARAMS } from "../../core/params";
 import { vec3 } from "gl-matrix";
 
 const BILLBOARD_IMAGES = [
-  { src: '/textures/test.png', label: 'test'} // PLACEHOLDER
+  { src: '../../../public/assets/textures/test.png', label: 'test'} // PLACEHOLDER
 ];
 
 export default class Renderer {
@@ -43,9 +43,9 @@ export default class Renderer {
     this.billboardPass = new BillboardPass(this.device,this.format);
     this.weatherPass = new WeatherPass(this.device,this.format);
   
-    // this.texManager = new TextureManager(this.device);
-    // await this.texManager.init(BILLBOARD_IMAGES);
-    // this.resources.createBillboardBindGroup(this.texManager);
+    this.texManager = new TextureManager(this.device);
+    await this.texManager.init(BILLBOARD_IMAGES);
+    this.resources.createBillboardBindGroup(this.texManager);
 
     this.computePass.init(this.resources);
     this.mainPass.init(this.resources);
@@ -129,7 +129,7 @@ export default class Renderer {
       },
     });
     this.mainPass.encode(opaquePass, this.resources);
-    // this.billboardPass.encode(opaquePass, this.resources);
+    this.billboardPass.encode(opaquePass, this.resources);
     opaquePass.end();
     
     const weatherRenderPass = encoder.beginRenderPass({

@@ -256,6 +256,26 @@ export default class ResourceManager {
         { binding: 2, visibility: V|F, buffer: { type: 'read-only-storage' } }, // billboardCount
       ],
     });
+    // g2
+    this.layouts.group2Billboard = this.device.createBindGroupLayout({
+    label: 'group2Billboard',
+    entries: [
+      { binding: 0, visibility: F,texture: { sampleType: 'float' } }, //text
+      { binding: 1, visibility: F, sampler: { type: 'filtering' } }, // sampler
+      { binding: 2, visibility: F, buffer: { type: 'read-only-storage' } }, // uv
+    ],
+  });
+  }
+  createBillboardBindGroup(texManager) {
+    this.bindGroups.group2Billboard = this.device.createBindGroup({
+      label: 'group2Billboard',
+      layout: this.layouts.group2Billboard,
+      entries: [
+        { binding: 0, resource: texManager.texture.createView() },
+        { binding: 1, resource: texManager.sampler },
+        { binding: 2, resource: { buffer: texManager.atlasEntriesBuffer } },
+      ],
+    });
   }
 
   createBindGroups() {
