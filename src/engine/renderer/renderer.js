@@ -53,6 +53,9 @@ export default class Renderer {
     this.weatherPass.init(this.resources);
 
   }
+  updWeather(code){
+    this.resources.updateWeather(code);
+  }
   start() {
     this.running = true;
     this.frame();
@@ -61,6 +64,7 @@ export default class Renderer {
     this.genOffset = 0;
     this.computeDirty = true;
     this.resources.regen(params);
+    this.frameCount = 0;
   }
   stop() {
     this.running = false;
@@ -127,7 +131,7 @@ export default class Renderer {
     this.mainPass.encode(opaquePass, this.resources);
     // this.billboardPass.encode(opaquePass, this.resources);
     opaquePass.end();
-    /*
+    
     const weatherRenderPass = encoder.beginRenderPass({
       colorAttachments: [{
         view: colorView,
@@ -136,7 +140,7 @@ export default class Renderer {
       }],
     });
     this.weatherPass.encode(weatherRenderPass, this.resources);
-    weatherRenderPass.end();*/
+    weatherRenderPass.end();
 
     this.device.queue.submit([encoder.finish()]);
     this.frameCount++;
