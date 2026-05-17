@@ -11,5 +11,6 @@ export async function initWebGPU(canvas) {
     format,
     alphaMode: "opaque",
   });
+  console.log('WebGPU ready:', { adapter, device, format });
   return { device, context, format };
 }

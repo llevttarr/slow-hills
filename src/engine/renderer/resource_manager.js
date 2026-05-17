@@ -85,7 +85,7 @@ export default class ResourceManager {
 
   /** uploads (const) */
   writeWorldUniforms(p) {
-    const buf = new ArrayBuffer(WORLD_UNIFORMS_BYTES);
+    const buf = new ArrayBuffer(WORLD_UNIFORMS_SIZE);
     const dv = new DataView(buf);
     dv.setUint32(0, p.xSize, true);
     dv.setUint32(4, p.zSize, true);

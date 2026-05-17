@@ -38,9 +38,9 @@ export default class Renderer {
     this.billboardPass = new BillboardPass(this.device,this.format);
     this.weatherPass = new WeatherPass(this.device,this.format);
   
-    this.texManager = new TextureManager(this.device);
-    await this.texManager.init(BILLBOARD_IMAGES);
-    this.resources.createBillboardBindGroup(this.texManager);
+    // this.texManager = new TextureManager(this.device);
+    // await this.texManager.init(BILLBOARD_IMAGES);
+    // this.resources.createBillboardBindGroup(this.texManager);
 
     this.computePass.init(this.resources);
     this.mainPass.init(this.resources);

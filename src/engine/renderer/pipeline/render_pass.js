@@ -21,7 +21,7 @@ export default class WebGPUPass {
       vertex: {
         module: shaderModule,
         entryPoint: 'vs_main',
-        buffers: vertexBufferLayouts ?? [],
+        buffers: vertexLayout ?? [],
       },
       fragment: {
         module: shaderModule,

@@ -3,16 +3,16 @@ import { useWebGPU } from "../../hooks/useWebGPU";
 import Renderer from "../../engine/renderer/renderer";
 
 export default function Visualization() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rendererRef = useRef<Renderer | null>(null);
+  const canvasRef = useRef(null);
+  const rendererRef = useRef(null);
   const gpu = useWebGPU(canvasRef);
 
   useEffect(() => {
     if (!gpu || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
-    canvas.width  = canvas.clientWidth || 800;
-    canvas.height = canvas.clientHeight || 600;
+    canvas.width = canvas.clientWidth || window.innerWidth;
+    canvas.height = canvas.clientHeight || window.innerHeight;
 
     const renderer = new Renderer(gpu);
     rendererRef.current = renderer;
@@ -22,6 +22,10 @@ export default function Visualization() {
         renderer.camera.bind(canvas);
         renderer.startRegen(renderer.resources.params);
         renderer.start();
+        console.log('renderer started, canvas:', canvas.width, 'x', canvas.height);
+      })
+      .catch(err => {
+        console.error('renderer init failed:', err);
       });
 
     return () => {
