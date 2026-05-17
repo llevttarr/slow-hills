@@ -54,15 +54,9 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   let fx = f32(col) / f32(world.x_size);
   let fz = f32(row) / f32(world.z_size);
 
-  let h = (sin(fx * 18.85) * 0.5 + 0.5)* (cos(fz * 12.57) * 0.5 + 0.5)* world.height_intensity;
+  let h = (sin(fx))* (cos(fz))* world.height_intensity;
 
   var rid = 0u;
-  for (var r = 0u; r < world.num_regions; r++) {
-    if h >= region_defs[r].height_min && h < region_defs[r].height_max {
-      rid = r;
-      break;
-    }
-  }
 
   terrain[idx] = TerrainCell(h, rid, -1i, u32(frame.time) + 1u);
 }
