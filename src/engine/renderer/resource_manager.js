@@ -1,3 +1,5 @@
+import { buildGradTable, buildPermTable } from "../../core/noise";
+
 const FRAME_UNIFORMS_SIZE = 28*4;
 const WORLD_UNIFORMS_SIZE = 12*4;
 
@@ -28,7 +30,7 @@ export default class ResourceManager {
     this.w = width;
     this.h = height;
     this.params = params;
-    const { xSize, zSize, numRegions } = params;
+    const { xSize, zSize, numRegions, seed } = params;
     const cellCount = xSize * zSize;
   
     this.buffers.frameUniforms = D.createBuffer({
@@ -76,9 +78,26 @@ export default class ResourceManager {
       format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
+
+    const permData = buildPermTable(seed)
+    const gradData = buildGradTable()
+
+    this.buffers.permTable = D.createBuffer({
+      label: 'permTable',
+      size:  permData.byteLength,
+      usage: U.STORAGE | U.COPY_DST,
+    });
+    this.buffers.gradTable = D.createBuffer({
+      label: 'gradTable',
+      size:  gradData.byteLength,
+      usage: U.STORAGE | U.COPY_DST,
+    });
+    D.queue.writeBuffer(this.buffers.permTable, 0, permData);
+    D.queue.writeBuffer(this.buffers.gradTable, 0, gradData);
+
     this.writeWorldUniforms(params);
     this.writeRegionDefs(params.regions);
-
+  
     this.createLayouts();
     this.createBindGroups();
   }
@@ -221,6 +240,8 @@ export default class ResourceManager {
         { binding: 0, visibility: C, buffer: { type: 'storage' } }, // terrainBuffer
         { binding: 1, visibility: C, buffer: { type: 'storage' } }, // billboardBuffer
         { binding: 2, visibility: C, buffer: { type: 'storage' } }, // billboardCount
+        { binding: 3, visibility: C, buffer: { type: 'read-only-storage' } }, // permTable
+        { binding: 4, visibility: C, buffer: { type: 'read-only-storage' } }, // grads
       ],
     });
 
@@ -248,16 +269,24 @@ export default class ResourceManager {
       ],
     });
 
-    const terrainEntries = [
-      { binding: 0, resource: { buffer: B.terrainBuffer } },
-      { binding: 1, resource: { buffer: B.billboardBuffer } },
-      { binding: 2, resource: { buffer: B.billboardCount } },
-    ];
     this.bindGroups.group1Write = D.createBindGroup({
-      label: 'group1Write', layout: this.layouts.group1Write, entries: terrainEntries,
+      label: 'group1Write', layout: this.layouts.group1Write,
+      entries: [
+        { binding: 0, resource: { buffer: B.terrainBuffer } },
+        { binding: 1, resource: { buffer: B.billboardBuffer } },
+        { binding: 2, resource: { buffer: B.billboardCount } },
+        { binding: 3, resource: { buffer: B.permTable } },
+        { binding: 4, resource: { buffer: B.gradTable } },
+      ],
     });
+
     this.bindGroups.group1Read = D.createBindGroup({
-      label: 'group1Read', layout: this.layouts.group1Read, entries: terrainEntries,
+      label: 'group1Read', layout: this.layouts.group1Read,
+      entries: [
+        { binding: 0, resource: { buffer: B.terrainBuffer } },
+        { binding: 1, resource: { buffer: B.billboardBuffer } },
+        { binding: 2, resource: { buffer: B.billboardCount } },
+      ],
     });
   }
 
