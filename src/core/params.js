@@ -3,13 +3,15 @@ export const DEFAULT_PARAMS = {
   zSize: 512,
   cellSize: 1.0,
   seed: 0x67676767,
-  numRegions: 1,
-  heightIntensity: 20.0,
+  numRegions: 3,
+  heightIntensity: 140.0,
   objectIntensity: 0.0,
-  agingRate: 0.1,
-  genChunkSize: 256,
+  agingRate: 0.01,
+  genChunkSize: 4096,
   regions: [
-    { color: [0.20, 0.55, 0.15], heightMin: 0, heightMax: 8, billboardChance: 0, billboardType: 0 }
+    { color: [0.165, 0.561, 0.059], heightMin: 0, heightMax: 10, billboardChance: 0, billboardType: 0 },
+    { color: [0.24, 0.678, 0.259], heightMin: 10, heightMax: 17, billboardChance: 0, billboardType: 0 },
+    { color: [0.45, 0.8, 0.404], heightMin: 17, heightMax: 999, billboardChance: 0, billboardType: 0 },
   ],
 };
 

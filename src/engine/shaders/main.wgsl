@@ -79,7 +79,7 @@ fn vs_main(@builtin(vertex_index) vi: u32) -> VertOut {
   let col = cell_idx % world.x_size;
   let row = cell_idx / world.x_size;
 
-  let floor_y = -world.height_intensity;
+  let floor_y = 0.0;
 
   if (cell.gen_frame == 0u && !is_bottom) {
     out.clip_pos = vec4<f32>(0.0, 0.0, 2.0, 1.0);
@@ -96,7 +96,7 @@ fn vs_main(@builtin(vertex_index) vi: u32) -> VertOut {
   let surface_y = mix(floor_y, cell.height, t);
   let y = select(surface_y, floor_y, is_bottom);
 
-  let wpos = vec3<f32>(f32(col) * world.cell_size,y,f32(row) * world.cell_size,);
+  let wpos = vec3<f32>(f32(col) * world.cell_size, y, f32(row) * world.cell_size);
 
   let view = make_view(frame.cam_pos, frame.cam_fwd, frame.cam_right, frame.cam_up);
   let proj = make_proj(frame.fov, frame.resolution.x / frame.resolution.y, 0.1, 1000.0);
@@ -104,7 +104,10 @@ fn vs_main(@builtin(vertex_index) vi: u32) -> VertOut {
 
   out.clip_pos = proj * view * vec4<f32>(wpos, 1.0);
 
-  out.color = select(region_defs[rid].color, vec3<f32>(0.25, 0.22, 0.18), is_bottom);
+  let base_color = select(region_defs[rid].color, vec3<f32>(0.25, 0.22, 0.18), is_bottom);
+
+  out.color = mix(vec3<f32>(1.0), base_color, t);
+
   out.world_pos = wpos;
   out.appear = select(t, 1.0, is_bottom);
   return out;

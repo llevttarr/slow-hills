@@ -73,7 +73,11 @@ fn fbm(x: f32, z: f32) -> f32 {
        + perlin2(x * 0.032, z * 0.032) * 0.125 + perlin2(x * 0.064, z * 0.064) * 0.063;
   return (raw / 0.938)*0.5 + 0.5;
 }
-
+fn hash21(x: u32, z: u32) -> f32 {
+    var h = x * 3266489917u + z * 668265263u;
+    h = (h ^ (h >> 15u)) * 2246822519u;
+    return f32(h & 0xFFFFFFu) / 16777216.0;
+}
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   let li = gid.x;
@@ -83,16 +87,29 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
 
   let col = idx % world.x_size;
   let row = idx / world.x_size;
-
-  let fx = f32(col) / f32(world.x_size);
-  let fz = f32(row) / f32(world.z_size);
-
-  // let h = (sin(fx))* (cos(fz))* world.height_intensity;
-  let h = (fbm(f32(col), f32(row)) * world.height_intensity);
+  let base_noise = fbm(f32(col), f32(row));
+  let peaky_noise = pow(base_noise, 3.5);
+  let floor_y = 0.0;
+  let h = floor_y + (peaky_noise * world.height_intensity);
+  let blend_range = 3.0;
+  let rand_val = hash21(col, row);
   var rid = 0u;
+
   for (var r = 0u; r < world.num_regions; r++) {
-    if h >= region_defs[r].height_min && h < region_defs[r].height_max {
+    let current_region = region_defs[r];
+    
+    if h >= current_region.height_min && h < current_region.height_max {
       rid = r;
+
+      let dist_to_upper_border = current_region.height_max - h;
+
+      if dist_to_upper_border < blend_range && r < (world.num_regions - 1u) {
+        let transition_probability = 1.0 - (dist_to_upper_border / blend_range);
+        
+        if rand_val < transition_probability {
+          rid = r + 1u;
+        }
+      }
       break;
     }
   }
