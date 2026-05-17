@@ -26,3 +26,10 @@ export function updWeather(w){
 
   renderer.updWeather(code ?? 0);
 }
+export function resizeRenderer(w,h){
+  if (!renderer){
+    console.warn("Renderer is not initialized");
+    return;
+  }
+  renderer.resize(w,h);
+}

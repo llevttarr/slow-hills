@@ -316,8 +316,11 @@ export default class ResourceManager {
     return visuals;
   }
   resize(width, height) {
+    if (width <= 0 || height <= 0) return;
     this.w = width; this.h = height;
-    this.textures.depth.destroy();
+    if (this.textures.depth) {
+      this.textures.depth.destroy();
+    }
     this.textures.depth = this.device.createTexture({
       size: [width, height], format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,

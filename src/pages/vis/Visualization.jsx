@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import { useWebGPU } from "../../hooks/useWebGPU";
 import Renderer from "../../engine/renderer/renderer";
-import { setRenderer } from "../../engine/renderer/renderer_instance";
+import { resizeRenderer, setRenderer } from "../../engine/renderer/renderer_instance";
 
 export default function Visualization() {
   const canvasRef = useRef(null);
@@ -43,7 +43,7 @@ export default function Visualization() {
       const { width, height } = entry.contentRect;
       canvas.width = width;
       canvas.height = height;
-      rendererRef.current?.resize(width, height);
+      resizeRenderer(width,height);
     });
     obs.observe(canvas);
     return () => obs.disconnect();

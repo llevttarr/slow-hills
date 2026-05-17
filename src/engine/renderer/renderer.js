@@ -81,6 +81,14 @@ export default class Renderer {
       requestAnimationFrame(this.frame);
       return;
     }
+    const canvas = this.context.canvas;
+    if (canvas.width === 0 || canvas.height === 0) {
+      requestAnimationFrame(this.frame);
+      return;
+    }
+    if (canvas.width !== this.w || canvas.height !== this.h) {
+      this.resize(canvas.width, canvas.height);
+    }
     const now = performance.now();
     const dt = Math.min((now - (this._lastTime ?? now)) / 1000, 0.1);
     this._lastTime = now;
