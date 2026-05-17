@@ -61,6 +61,7 @@ export default class Renderer {
     this.genOffset = 0;
     this.computeDirty = true;
     this.resources.regen(params);
+    this.frameCount = 0;
   }
   stop() {
     this.running = false;

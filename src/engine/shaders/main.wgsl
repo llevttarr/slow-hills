@@ -21,10 +21,12 @@ struct WorldUniforms {
   gen_chunk_size: u32, pad0: u32, pad1: u32,
 };
 struct WeatherUniforms {
-  wind_dir: vec2<f32>, wind_speed: f32, precipitation: f32,
-  cloud_cover: f32, temperature: f32, fog_density: f32,
-  fog_r: f32, fog_g: f32, fog_b: f32, pad0: f32,
-  uv_index: f32, weather_code: u32, snowfall: f32, pad1: f32, pad2: f32,
+  sky_top : vec3<f32>, fog_density : f32,
+  sky_horizon : vec3<f32>, precipitation: f32,
+  fog_color : vec3<f32>, snowfall : f32,
+  sun_color : vec3<f32>, sun_intensity: f32,
+  wind_dir : vec2<f32>, wind_speed : f32,
+  ambient_mult: f32,
 };
 struct RegionDef {
   color: vec3<f32>, billboard_type: u32,
