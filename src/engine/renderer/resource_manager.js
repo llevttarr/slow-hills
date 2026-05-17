@@ -80,8 +80,8 @@ export default class ResourceManager {
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
-    const permData = buildPermTable(seed)
-    const gradData = buildGradTable()
+    const permData = buildPermTable(seed);
+    const gradData = buildGradTable();
 
     this.buffers.permTable = D.createBuffer({
       label: 'permTable',
@@ -99,7 +99,7 @@ export default class ResourceManager {
     this.writeWorldUniforms(params);
     this.writeRegionDefs(params.regions);
     
-    this.writeWeatherUniforms(codeToVisuals(65));
+    this.writeWeatherUniforms(codeToVisuals(0));
     this.createLayouts();
     this.createBindGroups();
   }
@@ -294,10 +294,26 @@ export default class ResourceManager {
 
   /** extern-use util */
   regen(params) {
+    
     this.params = params;
+
+    const permData = buildPermTable(params.seed);
+    const gradData = buildGradTable();
+    this.device.queue.writeBuffer(this.buffers.permTable, 0, permData);
+    this.device.queue.writeBuffer(this.buffers.gradTable, 0, gradData);
+
     this.writeWorldUniforms(params);
     this.writeRegionDefs(params.regions);
+    if (this._currentWeatherCode !== undefined) {
+      this.updateWeather(this._currentWeatherCode);
+    }
     this.clearTerrain();
+  }
+  updateWeather(code, options = {}) {
+    const visuals = codeToVisuals(code,options.windDir ?? [0, 1],options.windSpeed ?? 0,options.temperature ?? 15,);
+    this.writeWeatherUniforms(visuals);
+    this._currentWeatherCode = code;
+    return visuals;
   }
   resize(width, height) {
     this.w = width; this.h = height;
