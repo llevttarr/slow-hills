@@ -35,6 +35,12 @@ struct Billboard {
   pos: vec3<f32>, b_type: u32,
   scale: f32, yaw: f32, pad: vec2<f32>,
 };
+
+@group(0) @binding(0) var<uniform> frame : FrameUniforms;
+@group(0) @binding(1) var<uniform> world : WorldUniforms;
+@group(0) @binding(2) var<storage, read> region_defs : array<RegionDef>;
+@group(0) @binding(3) var<uniform> weather : WeatherUniforms;
+
 @group(1) @binding(1) var<storage, read> billboards : array<Billboard>;
 
 struct AtlasEntry {

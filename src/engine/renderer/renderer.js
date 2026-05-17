@@ -29,6 +29,11 @@ export default class Renderer {
     this.w = width;
     this.h = height;
     this.camera = new Camera();
+  
+    this.camera.pos = vec3.fromValues(32, 30, 32);
+    this.camera.pitch = -0.6;
+    this.camera.upd_dir();    
+
     this.resources = new ResourceManager(this.device);
     /** resource initialization */
     this.resources.init(width, height, params);
@@ -72,6 +77,11 @@ export default class Renderer {
       requestAnimationFrame(this.frame);
       return;
     }
+    const now = performance.now();
+    const dt = Math.min((now - (this._lastTime ?? now)) / 1000, 0.1);
+    this._lastTime = now;
+
+    this.camera.move(dt);
     this.resources.writeFrameUniforms(
       this.camera,
       this.frameCount,

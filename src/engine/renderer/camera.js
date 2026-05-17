@@ -14,7 +14,7 @@ export default class Camera{
 
     this.fov = FOV_RAD;
     this.yaw = 0.1;
-    this.speed = 1.0;
+    this.speed = 10.0;
     this.moveTicks = 0;
     this.pitch = 0.1;
 
@@ -48,7 +48,7 @@ export default class Camera{
     if (this._keys.has('KeyW')) vec3.scaleAndAdd(this.pos, this.pos, flatFwd, spd);
     if (this._keys.has('KeyS')) vec3.scaleAndAdd(this.pos, this.pos, flatFwd, -spd);
     if (this._keys.has('KeyA')) vec3.scaleAndAdd(this.pos, this.pos, this.right,-spd);
-    if (this._keys.has('KeyD')) vec3.scaleAndAdd(this.pos, this.pos, this.right, spd);
+    if (this._keys.has('KeyD')) vec3.scaleAndAdd(this.pos, this.pos, this.right,spd);
     if (this._keys.has('Space')) this.pos[1] += spd;
     if (this._keys.has('ShiftLeft'))this.pos[1] -= spd;
   }
@@ -59,10 +59,10 @@ export default class Camera{
     this.forward[2] = cosPitch * Math.cos(this.yaw);
     vec3.normalize(this.forward, this.forward);
 
-    vec3.cross(this.right, this.forward, WORLD_UP);
+    vec3.cross(this.right, WORLD_UP, this.forward);
     vec3.normalize(this.right, this.right);
 
-    vec3.cross(this.up, this.right, this.forward);
+    vec3.cross(this.up, this.forward, this.right);
   }
   /** events poll */
   onMouseMove(dx, dy, sensitivity = 0.0015) {
