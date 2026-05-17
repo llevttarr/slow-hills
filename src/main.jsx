@@ -3,11 +3,11 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './index.css'
 
-import About from './pages/about/About.jsx'
-import Menu from './pages/menu/Menu.jsx'
+import About from './pages/About.jsx'
+import Menu from './pages/Menu.jsx'
 import Loading from './pages/fallback/Loading.jsx'
 
-const App = lazy(() => import('./pages/app/App.jsx'))
+const App = lazy(() => import('./pages/App.jsx'))
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
