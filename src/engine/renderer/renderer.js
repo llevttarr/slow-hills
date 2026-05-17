@@ -28,6 +28,7 @@ export default class Renderer {
   async init(width,height,params=DEFAULT_PARAMS){ 
     this.w = width;
     this.h = height;
+    this.camera = new Camera();
     this.resources = new ResourceManager(this.device);
     /** resource initialization */
     this.resources.init(width, height, params);
@@ -53,7 +54,7 @@ export default class Renderer {
   }
   startRegen(params) {
     this.genOffset = 0;
-    this.isGenerating = true;
+    this.computeDirty = true;
     this.resources.regen(params);
   }
   stop() {
@@ -66,8 +67,11 @@ export default class Renderer {
   }
   frame = () => {
     if (!this.running)
-        return;
-
+      return;
+    if (!this.camera) {
+      requestAnimationFrame(this.frame);
+      return;
+    }
     this.resources.writeFrameUniforms(
       this.camera,
       this.frameCount,
@@ -77,7 +81,7 @@ export default class Renderer {
     const encoder = this.device.createCommandEncoder();
 
     if (this.computeDirty) {
-      const { xSize, zSize, genChunkSize } = this.resources.params;
+      const { xSize, zSize, genChunkSize, agingRate } = this.resources.params;
       const total = xSize * zSize;
 
       const framesToAge = Math.ceil(1.0 / agingRate);
@@ -91,7 +95,7 @@ export default class Renderer {
         );
         this.lastChunkFrame = this.frameCount;
         this.genOffset += genChunkSize;
-        if (this.genOffset >= total) this.isGenerating = false;
+        if (this.genOffset >= total) this.computeDirty = false;
       }
     }
     const colorView = this.context.getCurrentTexture().createView();

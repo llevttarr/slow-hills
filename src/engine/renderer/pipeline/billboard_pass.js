@@ -1,4 +1,4 @@
-import shader from "../shaders/billboard.wgsl?raw";
+import shader from "../../shaders/billboard.wgsl?raw";
 import WebGPUPass from "./render_pass";
 
 const ALPHA_BLEND = {

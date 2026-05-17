@@ -1,4 +1,4 @@
-import shader from "../shaders/main.wgsl?raw";
+import shader from "../../shaders/main.wgsl?raw";
 import WebGPUPass from "./render_pass";
 
 export default class MainPass extends WebGPUPass{

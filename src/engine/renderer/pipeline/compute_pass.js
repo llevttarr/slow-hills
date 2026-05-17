@@ -1,5 +1,4 @@
-import vs from "../shaders/vs.wgsl?raw";
-import fs from "../shaders/fs.wgsl?raw";
+import computeShader from "../../shaders/compute.wgsl?raw";
 import WebGPUPass from "./render_pass";
 
 export default class ComputePass{
