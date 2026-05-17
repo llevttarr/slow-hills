@@ -70,25 +70,24 @@ export default class Renderer {
     this.running = false;
   }
   resize(w, h){
-    this.w = w;
-    this.h = h;
-    this.resources.resize(w, h); 
+    if (w <= 0 || h <= 0) return;
+    this._pendingResize = { w, h };
   }
   frame = () => {
     if (!this.running)
       return;
-    if (!this.camera) {
+    if (this._pendingResize) {
+      const { w, h } = this._pendingResize;
+      this._pendingResize = null;
+      this.w = w;
+      this.h = h;
+      this.resources.resize(w, h);
+    }
+    if (!this.camera || this.w === 0 || this.h === 0) {
       requestAnimationFrame(this.frame);
       return;
     }
-    const canvas = this.context.canvas;
-    if (canvas.width === 0 || canvas.height === 0) {
-      requestAnimationFrame(this.frame);
-      return;
-    }
-    if (canvas.width !== this.w || canvas.height !== this.h) {
-      this.resize(canvas.width, canvas.height);
-    }
+
     const now = performance.now();
     const dt = Math.min((now - (this._lastTime ?? now)) / 1000, 0.1);
     this._lastTime = now;

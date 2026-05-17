@@ -317,13 +317,14 @@ export default class ResourceManager {
   }
   resize(width, height) {
     if (width <= 0 || height <= 0) return;
-    this.w = width; this.h = height;
-    if (this.textures.depth) {
-      this.textures.depth.destroy();
-    }
+    this.w = width;
+    this.h = height;
+    this.textures.depth.destroy();
     this.textures.depth = this.device.createTexture({
-      size: [width, height], format: 'depth24plus',
-      usage: GPUTextureUsage.RENDER_ATTACHMENT,
+      label: 'depth',
+      size:  [width, height],
+      format: 'depth24plus',
+      usage:  GPUTextureUsage.RENDER_ATTACHMENT,
     });
   }
   writeGenState(genOffset, genChunkSize) {

@@ -40,10 +40,12 @@ export default function Visualization() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const obs = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      canvas.width = width;
-      canvas.height = height;
-      resizeRenderer(width,height);
+      const w = Math.floor(entry.contentRect.width);
+      const h = Math.floor(entry.contentRect.height);
+      if (w < 1 || h < 1) return;
+      canvas.width  = w;
+      canvas.height = h;
+      resizeRenderer(w, h);
     });
     obs.observe(canvas);
     return () => obs.disconnect();
