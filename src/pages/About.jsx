@@ -13,7 +13,7 @@ export default function About() {
           This site was created as a part of the "Web Technologies and Design" course in 2026 by Taras Levytskiy and Taras Kopach. Have fun!
         </article>
 
-        <Link to="/placeholder">
+        <Link to="/app">
           <Button text="Begin" />
         </Link>
       </div>

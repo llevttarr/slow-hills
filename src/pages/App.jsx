@@ -7,7 +7,7 @@ import Key from '../components/key'
 
 import { weatherCodes } from '../data/WeatherCodes'
 import Visualization from './vis/Visualization'
-import { rerun } from '../engine/renderer/renderer_instance'
+import { rerun, updWeather } from '../engine/renderer/renderer_instance'
 import GenerationForm from '../components/generation/generationForm'
 import GenerationProvider from '../components/generation/generationContext'
 
@@ -63,6 +63,10 @@ export default function App() {
       setWeather("--")
       setTemperature("--")
       setCity("--")
+    }
+    function handleWeather(){
+      console.set
+      updWeather(weather ?? "Clear sky");
     }
 
     async function handleSearch(e) {
@@ -141,7 +145,7 @@ export default function App() {
               </p>
 
               <div className='flex gap-4'>
-                <Button text='Set' func={() => { console.log("pressed") }} />
+                <Button text='Set' func={handleWeather} />
                 <Button text='Clear' func={clearWeather} />
               </div>
             </div>

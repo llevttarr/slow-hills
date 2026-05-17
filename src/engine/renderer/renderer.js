@@ -53,6 +53,9 @@ export default class Renderer {
     this.weatherPass.init(this.resources);
 
   }
+  updWeather(code){
+    this.resources.updateWeather(code);
+  }
   start() {
     this.running = true;
     this.frame();

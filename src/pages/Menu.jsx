@@ -11,7 +11,7 @@ export default function Menu() {
       <div className="flex flex-col items-center pt-20 gap-6">
         <h1 className="text-[128px] mb-32">Slow Hills</h1>
 
-        <Link to="/placeholder">
+        <Link to="/app">
           <Button text="Begin" />
         </Link>
 
