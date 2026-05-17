@@ -24,6 +24,7 @@ fn vs_main(@builtin(vertex_index) vi: u32) -> @builtin(position) vec4<f32> {
   let y = f32((vi & 2u) << 1u) - 1.0; 
   return vec4<f32>(x, y, 0.0, 1.0);
 }
+
 @fragment
 fn fs_main(@builtin(position) frag_pos: vec4<f32>) -> @location(0) vec4<f32> {
   let uv = frag_pos.xy / frame.resolution;
@@ -31,8 +32,27 @@ fn fs_main(@builtin(position) frag_pos: vec4<f32>) -> @location(0) vec4<f32> {
 
   var overlay = vec3<f32>(0.0);
   var alpha = 0.0;
-  
-  // TODO
 
+  if (weather.precipitation > 0.01) {
+    let drift = uv * vec2<f32>(60.0, 25.0) + vec2<f32>(t * weather.wind_dir.x * 0.4, t * 1.8);
+    let streak = step(0.93, fract(drift.x)) * step(0.6, fract(drift.y));
+    let a = streak * weather.precipitation * 0.6;
+    overlay = mix(overlay, vec3<f32>(0.72, 0.76, 0.88), min(a, 1.0));
+    alpha = max(alpha, a);
+  }
+  if (weather.snowfall > 0.01) {
+    let drift = uv * 35.0 + vec2<f32>(sin(t * 0.3 + uv.y * 2.0) * 0.5, t * 0.4);
+    let flake = step(0.97, fract(drift.x * 1.618 + drift.y));
+    let a = flake * min(weather.snowfall, 1.0) * 0.85;
+    overlay = mix(overlay, vec3<f32>(1.0), min(a, 1.0));
+    alpha = max(alpha, a);
+  }
+
+  let cloud_a = (1.0 - weather.ambient_mult) * 0.4;
+  overlay = mix(overlay, vec3<f32>(0.28, 0.30, 0.34), cloud_a);
+  alpha = max(alpha, cloud_a);
+
+  alpha = clamp(alpha, 0.0, 0.6);
+  if alpha < 0.004 { discard; }
   return vec4<f32>(overlay, alpha);
 }

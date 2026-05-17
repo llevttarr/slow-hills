@@ -1,5 +1,5 @@
 import { buildGradTable, buildPermTable } from "../../core/noise";
-import { defaultVisuals } from "../../core/weather";
+import { codeToVisuals, defaultVisuals } from "../../core/weather";
 
 const FRAME_UNIFORMS_SIZE = 28*4;
 const WORLD_UNIFORMS_SIZE = 12*4;
@@ -99,8 +99,7 @@ export default class ResourceManager {
     this.writeWorldUniforms(params);
     this.writeRegionDefs(params.regions);
     
-    dvis = defaultVisuals;
-    this.writeWeatherUniforms(defaultVisuals);
+    this.writeWeatherUniforms(codeToVisuals(65));
     this.createLayouts();
     this.createBindGroups();
   }

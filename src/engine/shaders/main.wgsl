@@ -117,19 +117,24 @@ fn vs_main(@builtin(vertex_index) vi: u32) -> VertOut {
 
 @fragment
 fn fs_main(in: VertOut) -> @location(0) vec4<f32> {
-  if in.appear < 0.01 { 
+  if (in.appear < 0.01) { 
     discard; 
   }
 
   var n = normalize(cross(dpdx(in.world_pos), dpdy(in.world_pos)));
-  if n.y < 0.0 { n = -n; }
+  if (n.y < 0.0) { 
+    n = -n; 
+  }
 
-  let diffuse = max(dot(n, normalize(frame.sun_dir)), 0.0);
-  let lit = in.color * (0.25 + 0.75 * diffuse);
+  let sun_dir = normalize(frame.sun_dir);
+  let diffuse = max(dot(n, sun_dir), 0.0);
+  let sun_contrib = weather.sun_color * (weather.sun_intensity * diffuse);
 
-  let fog_color = vec3<f32>(weather.fog_r, weather.fog_g, weather.fog_b);
+  let hemi = n.y * 0.5 + 0.5;
+  let ambient = mix(vec3<f32>(0.08, 0.07, 0.06), weather.sky_top, hemi)* weather.ambient_mult;
+  let lit = in.color * (ambient + sun_contrib);
   let dist = length(in.world_pos - frame.cam_pos);
   let fog_f = 1.0 - exp(-weather.fog_density * dist);
 
-  return vec4<f32>(mix(lit, fog_color, fog_f), 1.0);
+  return vec4<f32>(mix(lit, weather.fog_color, fog_f), 1.0);
 }
