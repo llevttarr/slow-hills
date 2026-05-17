@@ -42,6 +42,37 @@ struct Billboard {
 @group(1) @binding(3) var<storage, read> perm : array<u32>;
 @group(1) @binding(4) var<storage, read> grads : array<f32>;
 
+fn grad2(hash: u32, x: f32, z: f32) -> f32 {
+  let h = hash & 7u;
+  let gx = grads[h * 2u];
+  let gz = grads[h * 2u + 1u];
+  return gx * x + gz * z;
+}
+fn fade(t: f32) -> f32 { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
+
+fn perlin2(x: f32, z: f32) -> f32 {
+  let xi = u32(floor(x)) & 255u;
+  let zi = u32(floor(z)) & 255u;
+  let xf = fract(x);
+  let zf = fract(z);
+  let u = fade(xf); 
+  let v = fade(zf);
+
+  let aa = perm[perm[xi] + zi];
+  let ab = perm[perm[xi] + zi + 1u];
+  let ba = perm[perm[xi + 1u] + zi];
+  let bb = perm[perm[xi + 1u] + zi + 1u];
+
+  return mix(
+    mix(grad2(aa, xf, zf),grad2(ba, xf - 1.0, zf), u),
+    mix(grad2(ab, xf,zf - 1.0),grad2(bb, xf - 1.0, zf - 1.0), u),v,);
+}
+
+fn fbm(x: f32, z: f32) -> f32 {
+  let raw= perlin2(x * 0.008, z * 0.008) * 0.500 + perlin2(x * 0.016, z * 0.016) * 0.250
+       + perlin2(x * 0.032, z * 0.032) * 0.125 + perlin2(x * 0.064, z * 0.064) * 0.063;
+  return (raw / 0.938)*0.5 + 0.5;
+}
 
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
@@ -56,9 +87,15 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   let fx = f32(col) / f32(world.x_size);
   let fz = f32(row) / f32(world.z_size);
 
-  let h = (sin(fx))* (cos(fz))* world.height_intensity;
-
+  // let h = (sin(fx))* (cos(fz))* world.height_intensity;
+  let h = (fbm(f32(col), f32(row)) * world.height_intensity);
   var rid = 0u;
+  for (var r = 0u; r < world.num_regions; r++) {
+    if h >= region_defs[r].height_min && h < region_defs[r].height_max {
+      rid = r;
+      break;
+    }
+  }
 
   terrain[idx] = TerrainCell(h, rid, -1i, u32(frame.time) + 1u);
 }
