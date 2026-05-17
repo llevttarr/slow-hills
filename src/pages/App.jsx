@@ -148,14 +148,14 @@ function App() {
               <h2>City: {city}</h2>
               <h2>Temperature: {temperature} {temperature !== "--" ? "°C" : ""}</h2>
               <h2>Weather: {weather}</h2>
-              
+
               <p className={`text-red-400 pl-2 mt-4 text-2xl ${invalid ? "" : "invisible"}`}>
-                  Invalid city location
+                Invalid city location
               </p>
-              
+
               <div className='flex gap-4'>
                 <Button text='Set' func={() => { console.log("pressed") }} />
-                <Button text='Clear' func={ clearWeather } />
+                <Button text='Clear' func={clearWeather} />
               </div>
             </div>
           </div>

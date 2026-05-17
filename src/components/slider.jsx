@@ -7,7 +7,7 @@ export default function Slider({
   step = 1,
   value = 67,
   onChange,
-}){
+}) {
   const clampValue = (val) => {
     const num = Number(val)
 

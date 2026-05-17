@@ -12,12 +12,12 @@ const App = lazy(() => import('./pages/App.jsx'))
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <Suspense fallback={<Loading/>}>
-          <Routes>
-            <Route path='/' element={<Menu />} />
-            <Route path='/about' element={<About />} />
-            <Route path='/placeholder' element={<App />}/>
-          </Routes>
+      <Suspense fallback={<Loading />}>
+        <Routes>
+          <Route path='/' element={<Menu />} />
+          <Route path='/about' element={<About />} />
+          <Route path='/placeholder' element={<App />} />
+        </Routes>
       </Suspense>
     </BrowserRouter>
   </StrictMode>,
