@@ -5,6 +5,7 @@ import Input from "../input";
 import Key from "../key";
 
 import { weatherCodes } from "../../data/WeatherCodes";
+import { updWeather } from "../../engine/renderer/renderer_instance";
 
 export default function WeatherMenu() {
 
@@ -21,6 +22,11 @@ export default function WeatherMenu() {
     setTemperature("--");
     setCity("--");
   };
+
+  function handleWeather() {
+    console.set
+      updWeather(weather ?? "Clear sky");
+  }
 
   async function handleSearch(e) {
     setQuery(e.target.value);
@@ -91,7 +97,7 @@ export default function WeatherMenu() {
         </p>
 
         <div className='flex gap-4'>
-          <Button text='Set' func={() => { console.log("pressed") }} />
+          <Button text='Set' func={ handleWeather } />
           <Button text='Clear' func={clearWeather} />
         </div>
       </div>

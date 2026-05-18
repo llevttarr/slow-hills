@@ -12,9 +12,7 @@ export default function GenerationForm() {
   const { genParams, setParams } = useContext(GenerationContext);
   const { worldTab, setWorldTab } = useContext(WorldContext);
 
-  function handleChange(e) {
-    console.log(genParams);
-    
+  function handleChange(e) {    
     const { name, value } = e.target;
 
     setParams(prev => ({
