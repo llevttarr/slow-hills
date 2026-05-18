@@ -11,6 +11,7 @@ import { rerun, updWeather } from '../engine/renderer/renderer_instance'
 import GenerationForm from '../components/generation/generationForm'
 import GenerationProvider from '../components/generation/generationContext'
 import WeatherMenu from '../components/weather/weatherMenu'
+import WeatherProvider from '../components/weather/weatherContext'
 
 export const WorldContext = createContext(false);
 
@@ -18,7 +19,7 @@ export default function App() {
   const [worldTab, setWorldTab] = useState(false);
   const [weathTab, setWeathTab] = useState(false);
   const [contrTab, setContrTab] = useState(false);
-  
+
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") {
@@ -61,7 +62,7 @@ export default function App() {
             <span className='text-5xl mr-auto'>Set Weather</span>
             <div className='select-none cursor-pointer text-4xl' onClick={() => { setWeathTab(false) }}>X</div>
           </nav>
-          <WeatherMenu/>
+          <WeatherMenu />
         </div>
       </div>
     )
@@ -132,8 +133,10 @@ export default function App() {
   return (
     <main>
       {worldTab && <WorldTab />}
-      {weathTab && <WeatherTab />}
       {contrTab && <ControlsTab />}
+      <WeatherProvider>
+        {weathTab && <WeatherTab />}
+      </WeatherProvider>
 
       <nav className="flex items-center w-full absolute bottom-0 bg-(image:--gradient-fade) h-30">
         <div className="flex gap-10 mt-8 ml-6 relative top-0 text-3xl text-white">
