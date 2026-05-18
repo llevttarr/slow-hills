@@ -1,4 +1,5 @@
 import { buildGradTable, buildPermTable } from "../../core/noise";
+import { codeToVisuals, defaultVisuals } from "../../core/weather";
 
 const FRAME_UNIFORMS_SIZE = 28*4;
 const WORLD_UNIFORMS_SIZE = 12*4;
@@ -8,7 +9,7 @@ const TERRAIN_CELL_BYTES = 16;
 const BILLBOARD_BYTES = 32;
 const MAX_BILLBOARDS = 1000;
 
-const WEATHER_UNIFORMS_SIZE = 64;
+const WEATHER_UNIFORMS_SIZE = 80;
 const WEATHER_POLL_MS = 15 * 60 * 1000;
 
 export default class ResourceManager {
@@ -79,8 +80,8 @@ export default class ResourceManager {
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
-    const permData = buildPermTable(seed)
-    const gradData = buildGradTable()
+    const permData = buildPermTable(seed);
+    const gradData = buildGradTable();
 
     this.buffers.permTable = D.createBuffer({
       label: 'permTable',
@@ -97,7 +98,8 @@ export default class ResourceManager {
 
     this.writeWorldUniforms(params);
     this.writeRegionDefs(params.regions);
-  
+    
+    this.writeWeatherUniforms(codeToVisuals(0));
     this.createLayouts();
     this.createBindGroups();
   }
@@ -292,10 +294,26 @@ export default class ResourceManager {
 
   /** extern-use util */
   regen(params) {
+    
     this.params = params;
+
+    const permData = buildPermTable(params.seed);
+    const gradData = buildGradTable();
+    this.device.queue.writeBuffer(this.buffers.permTable, 0, permData);
+    this.device.queue.writeBuffer(this.buffers.gradTable, 0, gradData);
+
     this.writeWorldUniforms(params);
     this.writeRegionDefs(params.regions);
+    if (this._currentWeatherCode !== undefined) {
+      this.updateWeather(this._currentWeatherCode);
+    }
     this.clearTerrain();
+  }
+  updateWeather(code, options = {}) {
+    const visuals = codeToVisuals(code,options.windDir ?? [0, 1],options.windSpeed ?? 0,options.temperature ?? 15,);
+    this.writeWeatherUniforms(visuals);
+    this._currentWeatherCode = code;
+    return visuals;
   }
   resize(width, height) {
     this.w = width; this.h = height;
@@ -316,29 +334,33 @@ export default class ResourceManager {
   }
 
   /** weather */
-  writeWeatherUniforms(w) {
+  writeWeatherUniforms(v) {
     const buf = new ArrayBuffer(WEATHER_UNIFORMS_SIZE);
     const dv = new DataView(buf);
-    dv.setFloat32(0, w.windDir[0], true);
-    dv.setFloat32(4, w.windDir[1], true);
-    dv.setFloat32(8, w.windSpeed, true);
-    dv.setFloat32(12, w.precipitation, true);
-    dv.setFloat32(16, w.cloudCover, true);
-    dv.setFloat32(20, w.temperature, true);
-    dv.setFloat32(24, w.fogDensity, true);
-    dv.setFloat32(28, w.fogColor[0], true);
-    dv.setFloat32(32, w.fogColor[1], true);
-    dv.setFloat32(36, w.fogColor[2], true);
-    dv.setFloat32(40, 0, true);
-    dv.setFloat32(44, w.uvIndex, true);
-    dv.setUint32(48, w.weatherCode, true);
-    dv.setFloat32(52, w.snowfall, true);
-    dv.setFloat32(56, 0, true);
-    dv.setFloat32(60, 0, true);
+    dv.setFloat32(0, v.skyTop[0],true);
+    dv.setFloat32(4, v.skyTop[1], true);
+    dv.setFloat32(8, v.skyTop[2], true);
+    dv.setFloat32(12, v.fogDensity, true);
+    dv.setFloat32(16, v.skyHorizon[0], true);
+    dv.setFloat32(20, v.skyHorizon[1], true);
+    dv.setFloat32(24, v.skyHorizon[2], true);
+    dv.setFloat32(28, v.precipitation, true);
+    dv.setFloat32(32, v.fogColor[0], true);
+    dv.setFloat32(36, v.fogColor[1], true);
+    dv.setFloat32(40, v.fogColor[2], true);
+    dv.setFloat32(44, v.snowfall, true);
+    dv.setFloat32(48, v.sunColor[0], true);
+    dv.setFloat32(52, v.sunColor[1], true);
+    dv.setFloat32(56, v.sunColor[2], true);
+    dv.setFloat32(60, v.sunIntensity, true);
+    dv.setFloat32(64, v.windDir[0], true);
+    dv.setFloat32(68, v.windDir[1], true);
+    dv.setFloat32(72, v.windSpeed, true);
+    dv.setFloat32(76, v.ambientMult, true);
     this.device.queue.writeBuffer(this.buffers.weatherUniforms, 0, buf);
   }
 
-  startWeatherPolling(lat, lon) {
+  /*startWeatherPolling(lat, lon) {
     const poll = async () => {
       try {
         const w = await fetchWeather(lat, lon);
@@ -353,5 +375,5 @@ export default class ResourceManager {
 
   stopWeatherPolling() {
     clearInterval(this._weatherTimer);
-  }
+  }*/
 }

@@ -21,10 +21,12 @@ struct WorldUniforms {
   gen_chunk_size: u32, pad0: u32, pad1: u32,
 };
 struct WeatherUniforms {
-  wind_dir: vec2<f32>, wind_speed: f32, precipitation: f32,
-  cloud_cover: f32, temperature: f32, fog_density: f32,
-  fog_r: f32, fog_g: f32, fog_b: f32, pad0: f32,
-  uv_index: f32, weather_code: u32, snowfall: f32, pad1: f32, pad2: f32,
+  sky_top : vec3<f32>, fog_density : f32,
+  sky_horizon : vec3<f32>, precipitation: f32,
+  fog_color : vec3<f32>, snowfall : f32,
+  sun_color : vec3<f32>, sun_intensity: f32,
+  wind_dir : vec2<f32>, wind_speed : f32,
+  ambient_mult: f32,
 };
 struct RegionDef {
   color: vec3<f32>, billboard_type: u32,
@@ -115,19 +117,24 @@ fn vs_main(@builtin(vertex_index) vi: u32) -> VertOut {
 
 @fragment
 fn fs_main(in: VertOut) -> @location(0) vec4<f32> {
-  if in.appear < 0.01 { 
+  if (in.appear < 0.01) { 
     discard; 
   }
 
   var n = normalize(cross(dpdx(in.world_pos), dpdy(in.world_pos)));
-  if n.y < 0.0 { n = -n; }
+  if (n.y < 0.0) { 
+    n = -n; 
+  }
 
-  let diffuse = max(dot(n, normalize(frame.sun_dir)), 0.0);
-  let lit = in.color * (0.25 + 0.75 * diffuse);
+  let sun_dir = normalize(frame.sun_dir);
+  let diffuse = max(dot(n, sun_dir), 0.0);
+  let sun_contrib = weather.sun_color * (weather.sun_intensity * diffuse);
 
-  let fog_color = vec3<f32>(weather.fog_r, weather.fog_g, weather.fog_b);
+  let hemi = n.y * 0.5 + 0.5;
+  let ambient = mix(vec3<f32>(0.08, 0.07, 0.06), weather.sky_top, hemi)* weather.ambient_mult;
+  let lit = in.color * (ambient + sun_contrib);
   let dist = length(in.world_pos - frame.cam_pos);
   let fog_f = 1.0 - exp(-weather.fog_density * dist);
 
-  return vec4<f32>(mix(lit, fog_color, fog_f), 1.0);
+  return vec4<f32>(mix(lit, weather.fog_color, fog_f), 1.0);
 }

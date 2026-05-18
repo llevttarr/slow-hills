@@ -7,7 +7,7 @@ import Key from '../components/key'
 
 import { weatherCodes } from '../data/WeatherCodes'
 import Visualization from './vis/Visualization'
-import { rerun } from '../engine/renderer/renderer_instance'
+import { rerun, updWeather } from '../engine/renderer/renderer_instance'
 import GenerationForm from '../components/generation/generationForm'
 import GenerationProvider from '../components/generation/generationContext'
 import WeatherMenu from '../components/weather/weatherMenu'
@@ -54,8 +54,6 @@ export default function App() {
   }
 
   function WeatherTab() {
-    
-
     return (
       <div className='bg-bblack w-full h-full absolute z-999 flex justify-center'>
         <div className='rounded-[20px] border-2 bg-mgray w-190 h-150 p-6 mt-20'>
